@@ -1,7 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import supabase from "./supabase-client";
 
+type MetricType = {
+  name: string
+  total_sales: number
+}
+
 function Dashboard() {
+
+  const [metrics, setMetrics] = useState<MetricType[]> ([])
 
   const fetchMetrics = async () => {
     try {
@@ -32,6 +39,7 @@ function Dashboard() {
         throw response.error
       }
       console.log("response.dataresponse.dataresponse.data",response.data)
+      setMetrics(response.data)
     } catch (err) {
       console.log("errorerrorerror",err)
     }
