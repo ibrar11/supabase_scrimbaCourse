@@ -19,6 +19,19 @@ function Dashboard() {
         throw error;
       }
       console.log("datadatadatadata",data)
+
+      const response = await supabase
+        .from('sales_deal')
+        .select(
+          `
+          name,
+          total_sales:value.sum()
+          `,
+        )
+      if(response.error) {
+        throw response.error
+      }
+      console.log("response.dataresponse.dataresponse.data",response.data)
     } catch (err) {
       console.log("errorerrorerror",err)
     }
