@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import supabase from "./supabase-client";
+import { Chart } from 'react-charts';
+import type { AxisOptions } from 'react-charts';
 
 type MetricType = {
   name: string
   total_sales: number
+}
+
+type AxesDataType = {
+  primary: string
+  secondary: number
 }
 
 function Dashboard() {
@@ -12,7 +19,7 @@ function Dashboard() {
 
   const fetchMetrics = async () => {
     try {
-      const { data, error } = await supabase
+      const res = await supabase
       .from('sales_deal')
       .select(
         `
@@ -22,11 +29,9 @@ function Dashboard() {
       )
       .order('value', { ascending: false })
       .limit(1)
-      if (error) {
-        throw error;
+      if (res.error) {
+        throw res.error;
       }
-      console.log("datadatadatadata",data)
-
       const response = await supabase
         .from('sales_deal')
         .select(
@@ -38,7 +43,6 @@ function Dashboard() {
       if(response.error) {
         throw response.error
       }
-      console.log("response.dataresponse.dataresponse.data",response.data)
       setMetrics(response.data)
     } catch (err) {
       console.log("errorerrorerror",err)
@@ -49,10 +53,60 @@ function Dashboard() {
     fetchMetrics()
   },[])
 
+  const chartData = [
+    {
+      label: 'Sales',
+      data: metrics.map((m) => ({
+        primary: m.name,
+        secondary: m.total_sales,
+      })),
+      type: 'bar',
+    },
+  ];
+
+  const primaryAxis: AxisOptions<AxesDataType> = {
+    getValue: (d) => d.primary,
+    scaleType: 'band',
+    innerBandPadding: 0.2,
+    outerBandPadding: 0.1,
+    position: 'bottom',
+  };
+
+  const secondaryAxes: AxisOptions<AxesDataType>[] = [
+    {
+      getValue: (d) => d.secondary,
+      scaleType: 'linear',
+      min: 0,
+      max: y_max(),
+      position: 'left',
+    },
+  ];
+
+  function y_max() {
+    if (metrics.length > 0) {
+      const maxSum = Math.max(...metrics.map((m) => m.total_sales));
+      return maxSum + 2000;
+    }
+    return 5000; 
+  }
+
   return (
     <div className="dashboard-wrapper">
       <div className="chart-container">
         <h2>Total Sales This Quarter ($)</h2>
+        <div style={{ flex: 1 }}>
+          <Chart
+            options={{
+              data: chartData,
+              primaryAxis,
+              secondaryAxes,
+              defaultColors: ['#58d675'],
+              tooltip: {
+                show: false,
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   );
