@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import supabase from "./supabase-client";
 import { Chart } from 'react-charts';
 import type { AxisOptions } from 'react-charts';
+import Form from "./Form";
 
 type MetricType = {
   name: string
@@ -127,6 +128,7 @@ function Dashboard() {
           />
         </div>
       </div>
+      <Form metrics={metrics} />
     </div>
   );
 }
